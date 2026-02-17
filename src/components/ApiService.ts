@@ -1,5 +1,5 @@
-import { IApi, IProduct, IProductResponse } from "../../types";
-import { IOrderRequest, IOrderResponse } from "../../types";
+import { IApi, IProduct, IProductResponse } from "../types";
+import { IOrderRequest, IOrderResponse } from "../types";
 
 export class ApiService {
     private api: IApi; // композиция: хранит экземпляр базового Api

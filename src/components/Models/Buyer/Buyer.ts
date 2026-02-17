@@ -1,7 +1,12 @@
 import { IBuyer } from "../../../types";
 
 export class Buyer {
-    private data: Partial<IBuyer> = {}; // Объект, где хранятся данные покупателя. Partial — значит, что поля могут быть пустыми
+    private data: IBuyer = {
+        payment: '',
+        email: '',
+        phone: '',
+        address: ''
+    }; // Объект, где хранятся данные покупателя.
 
     constructor() {}
 
@@ -9,12 +14,17 @@ export class Buyer {
         this.data = { ...this.data, ...data }; // Объединяем новые данные с уже существующими, чтобы не терять предыдущие
     }
 
-    getData(): Partial<IBuyer> { // Метод получения всех данных покупателя
+    getData(): IBuyer { // Метод получения всех данных покупателя
         return this.data;
     }
 
     clear(): void {  // Метод очистки данных покупателя
-        this.data = {};
+        this.data = {
+        payment: '',
+        email: '',
+        phone: '',
+        address: ''
+        };
     }
 
     validate(): Record<string, string> {  // Метод валидации данных покупателя

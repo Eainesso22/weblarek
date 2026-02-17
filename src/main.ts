@@ -4,7 +4,7 @@ import { Buyer } from "./components/Models/Buyer/Buyer";
 import { Products } from "./components/Models/Products/Products";
 import { apiProducts } from "./utils/data";
 import { Api } from "./components/base/Api";
-import { ApiService } from "./components/base/ApiService";
+import { ApiService } from "./components/ApiService";
 import { API_URL } from "./utils/constants";
 
 //  Проверка Products
@@ -16,6 +16,10 @@ console.log("Каталог товаров", productsModel.getItems());
 
 const firstProductId = apiProducts.items[2].id;
 console.log("Получаем товары по id", productsModel.getItemById(firstProductId));
+
+// Проверка selectedItem
+productsModel.setSelectedItem(apiProducts.items[1]);
+console.log("Выбранный товар (из apiProducts):", productsModel.getSelectedItem());
 
 // Проверка Cart
 const cart = new Cart();
