@@ -1,14 +1,16 @@
 import { IProduct } from "../../../types";
+import { IEvents } from "../../base/Events";
 
 export class Products {
     private items: IProduct[] = []; // Массив всех товаров, изначально пустой
     
     private selectedItem: IProduct | null = null; // Товар, выбранный для подробного отображения, изначально null
 
-    constructor() {}
+    constructor(private events: IEvents) {}
 
-    setItems(items: IProduct[]) : void {  // Метод для сохранения массива товаров в модели
+    setItems(items: IProduct[]) {  // Метод для сохранения массива товаров в модели
         this.items = items; // Переписываем внутреннее поле items новым массивом товаров
+        this.events.emit('catalog:changed') //уведомляем презентер
     }
 
     getItems(): IProduct[] { // Метод для получения всех товаров из модели
@@ -21,6 +23,7 @@ export class Products {
 
     setSelectedItem(item: IProduct): void { // Метод для сохранения выбранного товара для подробного отображения
         this.selectedItem = item; // Сохраняем товар в поле selectedItem
+        this.events.emit('product:selected', { item }) //событие при изменении массива товаров
     }
 
     getSelectedItem(): IProduct| null { // Метод для получения выбранного товара

@@ -1,3 +1,9 @@
+import { Api } from "../components/base/Api";
+import { ApiService } from "../components/base/ApiService";
+import { CardCatalog } from "../components/View/Сards/cardCatalog";
+import { apiProducts } from "../utils/data";
+import { cloneTemplate } from "../utils/utils";
+
 export type ApiPostMethods = 'POST' | 'PUT' | 'DELETE';
 
 export interface IApi {
@@ -17,7 +23,7 @@ export interface IProduct {
 
 // Покупатель
 
-export type TPayment = 'card' | 'cash' | 'online'; // пример типов оплаты
+export type TPayment = 'online' | 'cash'; // пример типов оплаты
 
 export interface IBuyer {
   payment: TPayment;  // способ оплаты
@@ -46,6 +52,17 @@ export interface IOrderResponse { // Ответ сервера при успеш
     id: string; // id заказа, присвоенный сервером
     total: number; // итоговая сумма заказа
 }
+
+
+// Открытие карточки товара
+ export interface IGalleryCardClick {
+  product: IProduct;
+  imageSrc: string;
+}
+
+
+
+
 
 
 
