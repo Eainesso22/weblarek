@@ -12,11 +12,11 @@ export class CardCatalog extends Card<IProduct> {
     super(container, events);
 
     this.container.addEventListener("click", () => {
+
       if (!this.productData) return;
 
       this.events.emit("gallery:card-click", {
-        product: this.productData,
-        imageSrc: this.imageElement.src,
+        id: this.productData.id,
       });
     });
   }

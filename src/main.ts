@@ -3,7 +3,7 @@ import "./scss/styles.scss";
 import { Cart } from "./components/Models/Cart/Cart";
 import { Products } from "./components/Models/Products/Products";
 import { Api } from "./components/base/Api";
-import { ApiService } from "./components/base/ApiService";
+import { ApiService } from "./components/ApiService";
 import { API_URL } from "./utils/constants";
 import { IGalleryCardClick } from "./types";
 import { Buyer } from "./components/Models/Buyer/Buyer";
@@ -95,7 +95,7 @@ events.on("gallery:card-click", ({ product, imageSrc }: IGalleryCardClick) => {
 events.on("product:toggle", ({ id }: { id: string }) => {
   if (cartModel.hasItem(id)) cartModel.removeItem(id);
   else {
-    const product = productsModel.getItems().find((p) => p.id === id);
+    const product = productsModel.getItemById(id); 
     if (product) cartModel.addItem(product);
   }
 });
@@ -126,10 +126,9 @@ events.on("basket:open", () => {
   modal.open(basketContent);
 });
 
-// Удаление товара из корзины
-events.on("basket:remove", ({ id }: { id: string }) => {
-  cartModel.removeItem(id);
-  events.emit("cart:changed", { items: cartModel.getItems() });
+// Удаление товара из корзины 
+events.on("basket:remove", ({ id }: { id: string }) => { 
+  cartModel.removeItem(id); 
 });
 
 // Форма заказа
@@ -143,7 +142,6 @@ events.on("order:open", () => {
   orderForm.onSubmit((formData: IOrderFormData) => {
     modal.close();
     events.emit("order:completed", { orderData: formData });
-    events.emit("contacts:open");
   });
 
   modal.open(orderContent);
@@ -158,14 +156,6 @@ events.on("contacts:open", () => {
   const contactsForm = new ContactsForm(contactsContent, events);
 
   contactsForm.onSubmit();
-
-  events.on(
-    "buyer:validated",
-    ({ errors }: { errors: Record<string, string> }) => {
-      contactsForm.setValidationErrors(errors);
-    }
-  );
-  modal.open(contactsContent);
 });
 
 // Валидация (по изменению полей)

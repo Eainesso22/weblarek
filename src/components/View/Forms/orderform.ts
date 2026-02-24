@@ -1,84 +1,63 @@
-// orderform.ts
 import { Form, IFormData } from "./form";
 import { ensureElement } from "../../../utils/utils";
+import { IEvents } from "../../base/Events";
 
 export interface IOrderFormData extends IFormData {
   address: string;
   paymentMethod: "online" | "cash" | "";
 }
 
+
 export class OrderForm extends Form<IOrderFormData> {
   protected onlineButton: HTMLButtonElement;
   protected cashButton: HTMLButtonElement;
   protected addressInput: HTMLInputElement;
-  protected selectedPayment: "online" | "cash" | "" = ""; // отдельное свойство
+  events: any;
 
   constructor(container: HTMLFormElement) {
     super(container);
 
+    // Поиск элементов формы
     this.addressInput = ensureElement<HTMLInputElement>(
       'input[name="address"]',
       container
-    )!;
+    );
     this.onlineButton = ensureElement<HTMLButtonElement>(
       '.button[name="card"]',
       container
-    )!;
+    );
     this.cashButton = ensureElement<HTMLButtonElement>(
       '.button[name="cash"]',
       container
-    )!;
+    );
 
+    // При клике на кнопку оплаты эмитим событие с выбранным методом
     this.onlineButton.addEventListener("click", () => {
-      this.selectPaymentMethod("online");
-      this.validate();
+      this.events.emit("payment:change", { method: "online" });
     });
 
     this.cashButton.addEventListener("click", () => {
-      this.selectPaymentMethod("cash");
-      this.validate();
+      this.events.emit("payment:change", { method: "cash" });
     });
 
-    this.addressInput.addEventListener("input", () => this.validate());
+    // При вводе адреса эмитим событие с новым значением
+    this.addressInput.addEventListener("input", () => {
+      this.events.emit("address:change", { value: this.addressInput.value });
+    });
   }
 
-  selectPaymentMethod(method: "online" | "cash"): void {
-    this.selectedPayment = method; // сохраняем в внутреннем свойстве
-    if (method === "online") {
-      this.onlineButton.classList.add("button_alt-active");
-      this.cashButton.classList.remove("button_alt-active");
-    } else {
-      this.cashButton.classList.add("button_alt-active");
-      this.onlineButton.classList.remove("button_alt-active");
-    }
-  }
+  set paymentMethod(method: "online" | "cash" | "") {
+    // Визуальное выделение выбранного способа
+    this.onlineButton.classList.toggle("button_alt-active", method === "online");
+    this.cashButton.classList.toggle("button_alt-active", method === "cash");
 
-  validate(): boolean {
-    const addressValid = this.getFieldValue("address").trim().length > 0;
-    const paymentValid = this.selectedPayment !== "";
-
-    const errors: string[] = [];
-    if (!addressValid) errors.push("Введите адрес доставки");
-    if (!paymentValid) errors.push("Выберите способ оплаты");
-
-    if (errors.length > 0) {
-      this.setError(errors.join(". "));
-    } else {
-      this.clearError();
-    }
-
-    this.valid = addressValid && paymentValid;
-    return this.isValid;
-  }
-
-  getFieldValue(name: keyof IOrderFormData): string {
-    if (name === "paymentMethod") return this.selectedPayment;
-    return super.getFieldValue(name);
+    // Сохраняем значение в данных формы (через базовый класс)
+    super.setFieldValue("paymentMethod", method);
   }
 
   setFieldValue(name: keyof IOrderFormData, value: string): void {
     if (name === "paymentMethod") {
-      this.selectedPayment = value as "online" | "cash";
+      this.paymentMethod = value as "online" | "cash" | "";
     } else {
       super.setFieldValue(name, value);
     }

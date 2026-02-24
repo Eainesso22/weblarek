@@ -17,4 +17,3 @@ export const categoryMap: Record<string, string> = {
   "дополнительное": "card__category_additional",
   "кнопка": "card__category_button",
 }
-

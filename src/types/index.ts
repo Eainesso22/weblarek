@@ -1,5 +1,5 @@
 import { Api } from "../components/base/Api";
-import { ApiService } from "../components/base/ApiService";
+import { ApiService } from "../components/ApiService";
 import { CardCatalog } from "../components/View/Сards/cardCatalog";
 import { apiProducts } from "../utils/data";
 import { cloneTemplate } from "../utils/utils";

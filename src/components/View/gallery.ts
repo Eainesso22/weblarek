@@ -11,6 +11,7 @@ interface IGallery {
 export class Gallery extends Component<IGallery> {
     protected catalogElement: HTMLElement;
     private events: IEvents;
+  gallery: any;
     
     constructor (catalogElement: HTMLElement, events: IEvents) {
         super(catalogElement); //передаем контейнер в базовый компонент

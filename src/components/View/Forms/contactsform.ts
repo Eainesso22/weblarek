@@ -8,6 +8,9 @@ export interface IContactsFormData extends IFormData {
 }
 
 export class ContactsForm extends Form<IContactsFormData> {
+  setValidationErrors(errors: Record<string, string>) {
+    throw new Error("Method not implemented.");
+  }
   protected emailInput: HTMLInputElement;
   protected phoneInput: HTMLInputElement;
   protected submitButton: HTMLButtonElement;
@@ -28,44 +31,30 @@ export class ContactsForm extends Form<IContactsFormData> {
       container
     )!;
 
-    const emitFieldChanged = () => {
-      this.events.emit("buyer:fieldChanged", {
-        formData: {
-          email: this.emailInput.value,
-          phone: this.phoneInput.value,
-        },
+    // При изменении поля отправляем событие только с изменённым полем
+    this.emailInput.addEventListener("input", () => {
+      this.events.emit("contacts:fieldChanged", {
+        field: "email",
+        value: this.emailInput.value,
       });
-    };
+    });
 
-    this.emailInput.addEventListener("input", emitFieldChanged);
-    this.phoneInput.addEventListener("input", emitFieldChanged);
+    this.phoneInput.addEventListener("input", () => {
+      this.events.emit("contacts:fieldChanged", {
+        field: "phone",
+        value: this.phoneInput.value,
+      });
+    });
 
-    // По умолчанию кнопка заблокирована
+    // Начальное состояние кнопки (базовый класс при необходимости обновит её через valid)
     this.submitButton.disabled = true;
   }
 
-    // Обновляет состояние формы и отображает ошибки.
-    public setValidationErrors(errors: Record<string, string>) {
-        if (errors.email)  {this.setError(errors.email);
-        } else if (errors.phone) {this.setError(errors.phone);
-        } else { this.clearError();
-    }
-
-        const hasErrors = Boolean(errors.email || errors.phone);
-        this.valid = !hasErrors;
-        this.submitButton.disabled = hasErrors;
-      }
-
- public onSubmit() {
+  // Метод onSubmit больше не собирает данные – все данные уже в модели
+  public onSubmit() {
     this.container.addEventListener("submit", (event) => {
       event.preventDefault();
-
-      const formData: IContactsFormData = {
-        email: this.emailInput.value,
-        phone: this.phoneInput.value,
-      };
-
-      this.events.emit("contacts:submitted", { formData });
+      this.events.emit("contacts:submit");
     });
   }
 }

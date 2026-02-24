@@ -1,5 +1,5 @@
 import { IBuyer } from "../../../types";
-import { ApiService } from "../../base/ApiService";
+import { ApiService } from "../../ApiService";
 import { IEvents } from "../../base/Events";
 
 export class Buyer {
@@ -10,7 +10,8 @@ export class Buyer {
     setData(data: Partial<IBuyer>): void { // Метод сохранения данных покупателя
         this.data = { ...this.data, ...data }; // Объединяем новые данные с уже существующими, чтобы не терять предыдущие
         this.events.emit('buyer: updated', { buyer: this.data}) //изменение данных покупателя
-        this.validate();
+        const errors = this.validate();
+        this.events.emit('buyer:validated', { errors });
 
     }
 
@@ -21,27 +22,23 @@ export class Buyer {
     clear(): void {  // Метод очистки данных покупателя
         this.data = {};
         this.events.emit('buyer: cleared');
-        this.validate();
+        const errors = this.validate();
+        this.events.emit('buyer:validated', { errors });
     }
 
     validate(): Record<string, string> {  // Метод валидации данных покупателя
         const errors: Record<string, string> = {}; // Объект для хранения ошибок
-     
-    if ("payment" in this.data && !this.data.payment) errors.payment = "Не выбран вид оплаты";
-    if ("email" in this.data && !this.data.email) errors.email = "Укажите email";
-    else if ("email" in this.data && this.data.email && !this.data.email.includes("@"))
-      errors.email = "Неверный email";
+        
+        if (!this.data.payment) errors.payment = "Не выбран вид оплаты";
+        if (!this.data.email) errors.email = "Укажите email";
+        if (!this.data.phone) errors.phone = "Укажите телефон";
+        if (!this.data.address) errors.address = "Укажите адрес";
 
-    if ("phone" in this.data && !this.data.phone) errors.phone = "Укажите телефон";
-    else if ("phone" in this.data && this.data.phone && !this.data.phone.match(/^\+?\d{10,15}$/))
-      errors.phone = "Неверный телефон";
+        return errors;
+        }
 
-    if ("address" in this.data && !this.data.address) errors.address = "Укажите адрес";
-
-    this.events.emit("buyer:validated", { errors });
-    return errors;
   }
-}
+
 
 
 

@@ -61,21 +61,10 @@ export class Card<T extends IProduct> {
 
   setData(product: T, index?: number) {
     this.titleElement.textContent = product.title;
-    this.priceElement.textContent = product.price
+    this.priceElement.textContent = product.price !== null
       ? `${product.price} синапсов`
-      : "";
+      : "Бесценно";
 
-    // Используем сеттер image
-    this.image = product.image;
-    this.index = index;
-    this.productId = product.id;
-
-    // Категория
-    const cssClass = categoryMap[product.category];
-    if (cssClass) {
-      this.categoryElement.className = `card__category ${cssClass}`;
-    }
-    this.categoryElement.textContent = product.category;
   }
 
   render(): HTMLElement {
