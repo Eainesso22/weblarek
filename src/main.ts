@@ -38,6 +38,28 @@ const buyerModel = new Buyer(events);
 const gallery = new Gallery(ensureElement<HTMLElement>(".gallery"), events);
 const modal = new Modal(events, ensureElement<HTMLElement>("#modal-container"));
 const header = new Header(ensureElement<HTMLElement>(".header"), events);
+const orderTemplate = ensureElement<HTMLTemplateElement>("#order");
+const orderContent = orderTemplate.content.firstElementChild!.cloneNode(true) as HTMLFormElement;
+const orderForm = new OrderForm(orderContent);
+class basketView {
+  static open() {
+    throw new Error("Method not implemented.");
+  }
+  private content: HTMLElement;
+  private button: HTMLButtonElement;
+
+  constructor(container: HTMLElement, private events: EventEmitter) {
+    this.content = container;
+    this.button = this.content.querySelector('.basket__button')!;
+    this.button.addEventListener('click', () => {
+      this.events.emit('order:open');
+    });
+  }
+
+  open() {
+    modal.open(this.content);
+  }
+}
 
 // Корзина
 const basketTemplate = ensureElement<HTMLTemplateElement>("#basket");
@@ -119,11 +141,7 @@ events.on("cart:changed", ({ items }: { items?: IProduct[] } = {}) => {
 
 // Открытие корзины
 events.on("basket:open", () => {
-  const basketButton =
-    basketContent.querySelector<HTMLButtonElement>(".basket__button")!;
-  basketButton.onclick = () => events.emit("order:open");
-
-  modal.open(basketContent);
+    basketView.open();
 });
 
 // Удаление товара из корзины 
@@ -133,12 +151,6 @@ events.on("basket:remove", ({ id }: { id: string }) => {
 
 // Форма заказа
 events.on("order:open", () => {
-  const orderTemplate = ensureElement<HTMLTemplateElement>("#order");
-  const orderContent = orderTemplate.content.firstElementChild!.cloneNode(
-    true
-  ) as HTMLFormElement;
-  const orderForm = new OrderForm(orderContent);
-
   orderForm.onSubmit((formData: IOrderFormData) => {
     modal.close();
     events.emit("order:completed", { orderData: formData });
@@ -191,7 +203,6 @@ events.on(
       success.message = `Списано ${total} синапсов`;
 
       cartModel.clear();
-      events.emit("cart:changed", { items: cartModel.getItems() });
 
       success.onClose(() => {
         modal.close();
@@ -200,6 +211,7 @@ events.on(
 
       modal.open(success.render());
     }
+    
   }
 );
 

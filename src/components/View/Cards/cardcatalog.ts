@@ -7,6 +7,7 @@ import { ensureElement } from "../../../utils/utils";
 
 export class CardCatalog extends Card<IProduct> {
   private productData!: IProduct;
+  protected index?: number;
 
   constructor(container: HTMLElement, events: IEvents) {
     super(container, events);
@@ -21,9 +22,11 @@ export class CardCatalog extends Card<IProduct> {
     });
   }
 
-  setData(product: IProduct, index?: number) {
-    super.setData(product, index);
+setData(product: IProduct, index?: number) {
+    super.setData(product);
     this.productData = product;
-  }
+    if (index !== undefined) {
+        this.index = index;
+    }
 }
-
+}
