@@ -4,29 +4,26 @@ import { IEvents } from "../../base/Events";
 import { ensureElement } from "../../../utils/utils";
 
 
-
 export class CardCatalog extends Card<IProduct> {
-  private productData!: IProduct;
-  protected index?: number;
-
   constructor(container: HTMLElement, events: IEvents) {
     super(container, events);
-
-    this.container.addEventListener("click", () => {
-
-      if (!this.productData) return;
-
-      this.events.emit("gallery:card-click", {
-        id: this.productData.id,
-      });
+    
+    // Единый обработчик клика – использует productId из базового класса
+    this.container.addEventListener('click', () => {
+      if (this.productId) {
+        this.events.emit('gallery:card-click', { id: this.productId });
+      }
     });
   }
 
-setData(product: IProduct, index?: number) {
-    super.setData(product);
-    this.productData = product;
+  setData(product: IProduct, index?: number): void {
+    super.setData(product); // базовый класс сохраняет productId, title, price
+    
     if (index !== undefined) {
-        this.index = index;
+      const indexElement = this.container.querySelector('.card__index');
+      if (indexElement) {
+        indexElement.textContent = String(index + 1);
+      }
     }
-}
+  }
 }

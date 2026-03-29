@@ -14,7 +14,7 @@ import { CardCatalog } from "./components/View/Сards/cardCatalog";
 import { CardPreview } from "./components/View/Сards/cardPreview";
 import { Modal } from "./components/View/Modal/modal";
 import { Basket } from "./components/View/basket";
-import { OrderForm, IOrderFormData } from "./components/View/Forms/orderForm";
+import { ContactsModel, OrderForm, IOrderFormData, validateContactsForm } from "./components/View/Forms/orderForm";
 import {
   ContactsForm,
   IContactsFormData,
@@ -41,25 +41,6 @@ const header = new Header(ensureElement<HTMLElement>(".header"), events);
 const orderTemplate = ensureElement<HTMLTemplateElement>("#order");
 const orderContent = orderTemplate.content.firstElementChild!.cloneNode(true) as HTMLFormElement;
 const orderForm = new OrderForm(orderContent);
-class basketView {
-  static open() {
-    throw new Error("Method not implemented.");
-  }
-  private content: HTMLElement;
-  private button: HTMLButtonElement;
-
-  constructor(container: HTMLElement, private events: EventEmitter) {
-    this.content = container;
-    this.button = this.content.querySelector('.basket__button')!;
-    this.button.addEventListener('click', () => {
-      this.events.emit('order:open');
-    });
-  }
-
-  open() {
-    modal.open(this.content);
-  }
-}
 
 // Корзина
 const basketTemplate = ensureElement<HTMLTemplateElement>("#basket");
@@ -141,7 +122,7 @@ events.on("cart:changed", ({ items }: { items?: IProduct[] } = {}) => {
 
 // Открытие корзины
 events.on("basket:open", () => {
-    basketView.open();
+  modal.open(basket.render());
 });
 
 // Удаление товара из корзины 
@@ -180,39 +161,26 @@ events.on(
 );
 
 // Сабмит формы контактов
-events.on(
-  "contacts:submitted",
-  ({ formData }: { formData: IContactsFormData }) => {
-    const errors: Record<string, string> = {};
+events.on("contacts:submitted", ({ formData }: { formData: IContactsFormData }) => {
+  const errors = validateContactsForm(formData, events);
 
-    if (!formData.email.includes("@")) errors.email = "Неверный email";
-    if (!formData.phone.match(/^\+?\d{10,15}$/))
-      errors.phone = "Неверный телефон";
+  if (Object.keys(errors).length === 0) {
+    const total = cartModel.getTotalPrice();
+    const successTemplate = ensureElement<HTMLTemplateElement>("#success");
+    const successContent =
+      successTemplate.content.firstElementChild!.cloneNode(true) as HTMLElement;
+    const success = new Success(successContent, events);
 
-    events.emit("buyer:validated", { errors });
+    success.message = `Списано ${total} синапсов`;
 
-    if (Object.keys(errors).length === 0) {
-      const total = cartModel.getTotalPrice();
-      const successTemplate = ensureElement<HTMLTemplateElement>("#success");
-      const successContent =
-        successTemplate.content.firstElementChild!.cloneNode(
-          true
-        ) as HTMLElement;
-      const success = new Success(successContent, events);
+    cartModel.clear();
 
-      success.message = `Списано ${total} синапсов`;
+    success.onClose(() => {
+      modal.close();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
 
-      cartModel.clear();
-
-      success.onClose(() => {
-        modal.close();
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      });
-
-      modal.open(success.render());
-    }
-    
+    modal.open(success.render());
   }
-);
-
+});
 loadProducts();

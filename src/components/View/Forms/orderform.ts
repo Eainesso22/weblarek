@@ -1,6 +1,7 @@
 import { Form, IFormData } from "./form";
 import { ensureElement } from "../../../utils/utils";
-import { IEvents } from "../../base/Events";
+import { IContactsFormData } from "./contactsForm";
+import { EventEmitter } from "../../base/Events";
 
 export interface IOrderFormData extends IFormData {
   address: string;
@@ -62,4 +63,20 @@ export class OrderForm extends Form<IOrderFormData> {
       super.setFieldValue(name, value);
     }
   }
+}
+
+export function validateContactsForm(formData: IContactsFormData, events: EventEmitter) {
+  const errors: Record<string, string> = {};
+
+  if (!formData.email.includes("@")) {
+    errors.email = "Неверный email";
+  }
+
+  if (!formData.phone.match(/^\+?\d{10,15}$/)) {
+    errors.phone = "Неверный телефон";
+  }
+
+  events.emit("buyer:validated", { errors });
+
+  return errors;
 }

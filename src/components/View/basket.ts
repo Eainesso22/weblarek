@@ -6,19 +6,29 @@ export class Basket {
   private priceElement: HTMLElement;
   private buttonElement: HTMLButtonElement;
   private events: IEvents;
+  private container: HTMLElement;
 
-  constructor(container: HTMLElement, events: IEvents) {
-    this.events = events;
+constructor(container: HTMLElement, events: IEvents) {
+  this.container = container;
+  this.events = events;
 
-    this.listElement = ensureElement<HTMLElement>(".basket__list", container);
-    this.priceElement = ensureElement<HTMLElement>(".basket__price", container);
-    this.buttonElement = ensureElement<HTMLButtonElement>(
-      ".basket__button",
-      container
-    );
+  this.listElement = ensureElement<HTMLElement>(".basket__list", container);
+  this.priceElement = ensureElement<HTMLElement>(".basket__price", container);
+  this.buttonElement = ensureElement<HTMLButtonElement>(
+    ".basket__button",
+    container
+  );
 
-    this.showEmptyState();
-  }
+  this.buttonElement.addEventListener("click", () => {
+    this.events.emit("order:open");
+  });
+
+  this.showEmptyState();
+}
+
+render(): HTMLElement {
+  return this.container;
+}
 
   // метод для отображения пустой корзины
   private showEmptyState() {
